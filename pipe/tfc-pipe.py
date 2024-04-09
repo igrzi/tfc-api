@@ -5,7 +5,7 @@ schema = {
   'TF_API_TOKEN': {'type': 'string', 'required': True},
   'TF_ORG_NAME': {'type': 'string', 'required': True},
   'TF_NEW_WORKSPACE_NAME': {'type': 'string', 'required': True},
-  'TF_PROJECT_NAME': {'type': 'string', 'required': True},
+  'TF_PROJECT_NAME': {'type': 'string', 'required': False},
 }
 
 ## Get ID from project name
@@ -32,26 +32,39 @@ def get_project_id(API_KEY, ORG_NAME, PROJECT_NAME):
 ## Workspace creation and association
 def create_workspace(API_KEY, ORG_NAME, NEW_WORKSPACE_NAME, PROJECT_NAME):
 
-    project_id = get_project_id(API_KEY, ORG_NAME, PROJECT_NAME)
+    if PROJECT_NAME:
+        project_id = get_project_id(API_KEY, ORG_NAME, PROJECT_NAME)
 
-    payload = {
-        "data": {
-            "attributes": {
-                "name": NEW_WORKSPACE_NAME,
-                "resource-count": 0,
-                "updated-at": "03-04-2024"
-            },
-            "type": "workspaces",
-            "relationships": {
-                "project": {
-                    "data": {
-                        "id": project_id,
-                        "type": "projects"
-                    } 
+        payload = {
+            "data": {
+                "attributes": {
+                    "name": NEW_WORKSPACE_NAME,
+                    "resource-count": 0,
+                    "updated-at": "03-04-2024"
+                },
+                "type": "workspaces",
+                "relationships": {
+                    "project": {
+                        "data": {
+                            "id": project_id,
+                            "type": "projects"
+                        } 
+                    }   
                 }
             }
         }
-    }
+    else:
+        payload = {
+            "data": {
+                "attributes": {
+                    "name": NEW_WORKSPACE_NAME,
+                    "resource-count": 0,
+                    "updated-at": "03-04-2024"
+                },
+                "type": "workspaces",
+            }
+        }
+
 
     payload_json = json.dumps(payload)
 
@@ -66,6 +79,8 @@ def create_workspace(API_KEY, ORG_NAME, NEW_WORKSPACE_NAME, PROJECT_NAME):
 
     if response.status_code == 201:
         print("Workspace created successfully.")
+    elif (response.status_code == 422):
+        print("Workspace already exists, but process will continue!")
     else:
         print("Failed to create workspace. Status code:", response.status_code)
 

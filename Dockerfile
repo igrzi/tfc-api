@@ -7,5 +7,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # copy the pipe source code
 COPY pipe /
+WORKDIR /pipe
 
 ENTRYPOINT ["python3", "/tfc-pipe.py"]
