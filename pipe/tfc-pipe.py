@@ -30,8 +30,9 @@ def get_project_id(API_KEY, ORG_NAME, PROJECT_NAME):
 
 
 ## Workspace creation and association
-def create_workspace(API_KEY, ORG_NAME, NEW_WORKSPACE_NAME, PROJECT_NAME):
+def create_workspace(API_KEY, ORG_NAME, NEW_WORKSPACE_NAME, PROJECT_NAME, pipe):
 
+    ## I'm doing this in a dumb way, I just can't think of a better way to do this rn
     if PROJECT_NAME:
         project_id = get_project_id(API_KEY, ORG_NAME, PROJECT_NAME)
 
@@ -75,14 +76,19 @@ def create_workspace(API_KEY, ORG_NAME, NEW_WORKSPACE_NAME, PROJECT_NAME):
         "Authorization": f"Bearer {API_KEY}"
     }
 
+
     response = requests.post(api_endpoint, headers=api_headers, data=payload_json)
 
+
+    ## Implement better error handling
     if response.status_code == 201:
         print("Workspace created successfully.")
-    elif (response.status_code == 422):
+    elif response.status_code == 422 and response.json()['errors'][0]['detail'] == "Name has already been taken":
         print("Workspace already exists, but process will continue!")
+    elif response.status_code == 401:
+        print("Unauthorized. Check your API token.", response.status_code) ## Should it break the pipe? YES
     else:
-        print("Failed to create workspace. Status code:", response.status_code)
+        pipe.fail(f"Failed to create workspace. {response.json()['errors'][0]['detail']}") ## Follow this example
 
 
 logger = get_logger()
@@ -97,7 +103,7 @@ class CreateWorkspacePipe(Pipe):
         NEW_WORKSPACE_NAME = self.get_variable('TF_NEW_WORKSPACE_NAME')
         PROJECT_NAME = self.get_variable('TF_PROJECT_NAME')
 
-        create_workspace(API_TOKEN, ORG_NAME, NEW_WORKSPACE_NAME, PROJECT_NAME)
+        create_workspace(API_TOKEN, ORG_NAME, NEW_WORKSPACE_NAME, PROJECT_NAME, self)
 
 
 if __name__ == '__main__':
