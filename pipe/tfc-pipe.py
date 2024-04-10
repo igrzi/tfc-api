@@ -80,15 +80,14 @@ def create_workspace(API_KEY, ORG_NAME, NEW_WORKSPACE_NAME, PROJECT_NAME, pipe):
     response = requests.post(api_endpoint, headers=api_headers, data=payload_json)
 
 
-    ## Implement better error handling
     if response.status_code == 201:
-        print("Workspace created successfully.")
+        pipe.success("Workspace created successfully.")
     elif response.status_code == 422 and response.json()['errors'][0]['detail'] == "Name has already been taken":
-        print("Workspace already exists, but process will continue!")
+        pipe.success("Workspace already exists, but process will continue!")
     elif response.status_code == 401:
-        print("Unauthorized. Check your API token.", response.status_code) ## Should it break the pipe? YES
+        pipe.fail("Unauthorized. Check your API token.", response.status_code)
     else:
-        pipe.fail(f"Failed to create workspace. {response.json()['errors'][0]['detail']}") ## Follow this example
+        pipe.fail(f"Failed to create workspace. {response.json()['errors'][0]['detail']}")
 
 
 logger = get_logger()
