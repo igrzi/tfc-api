@@ -32,39 +32,17 @@ def get_project_id(API_KEY, ORG_NAME, PROJECT_NAME):
 ## Workspace creation and association
 def create_workspace(API_KEY, ORG_NAME, NEW_WORKSPACE_NAME, PROJECT_NAME, pipe):
 
-    ## I'm doing this in a dumb way, I just can't think of a better way to do this rn
-    if PROJECT_NAME:
-        project_id = get_project_id(API_KEY, ORG_NAME, PROJECT_NAME)
-
-        payload = {
-            "data": {
-                "attributes": {
-                    "name": NEW_WORKSPACE_NAME,
-                    "resource-count": 0,
-                    "updated-at": "03-04-2024"
-                },
-                "type": "workspaces",
-                "relationships": {
-                    "project": {
-                        "data": {
-                            "id": project_id,
-                            "type": "projects"
-                        } 
-                    }   
-                }
-            }
+    payload = {
+    "data": {
+        "attributes": {
+            "name": NEW_WORKSPACE_NAME,
+            "resource-count": 0,
+            "updated-at": "03-04-2024"
+        },
+        "type": "workspaces",
+        **({"relationships": {"project": {"data": {"id": get_project_id(API_KEY, ORG_NAME, PROJECT_NAME), "type": "projects"}}}} if PROJECT_NAME else {})
         }
-    else:
-        payload = {
-            "data": {
-                "attributes": {
-                    "name": NEW_WORKSPACE_NAME,
-                    "resource-count": 0,
-                    "updated-at": "03-04-2024"
-                },
-                "type": "workspaces",
-            }
-        }
+    }
 
 
     payload_json = json.dumps(payload)
@@ -106,5 +84,5 @@ class CreateWorkspacePipe(Pipe):
 
 
 if __name__ == '__main__':
-    pipe = CreateWorkspacePipe(pipe_metadata='/pipe.yml', schema=schema)
+    pipe = CreateWorkspacePipe(schema=schema)
     pipe.run()
