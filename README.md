@@ -1,42 +1,48 @@
-# tfc-api.sh
+# TFC-Pipe
 
-```
-  ____________________                __   ___    ____  ____
- /_  __/ ____/ ____/ /___  __  ______/ /  /   |  / __ \/  _/
-  / / / /_  / /   / / __ \/ / / / __  /  / /| | / /_/ // /  
- / / / __/ / /___/ / /_/ / /_/ / /_/ /  / ___ |/ ____// /   
-/_/ /_/    \____/_/\____/\____/\____/  /_/  |_/_/   /___/
 
-```
+## Quick access
 
-This script provides a command-line interface for interacting with the Terraform Cloud API. It includes functions for listing workspaces, creating a workspace, listing projects, creating a project, and attaching a workspace to a project.
+### [Pipeline Example](#bitbucket-pipelinesyml-example)
+### [Variables](#variables)
+### [Author Information](#author-information)
 
-## Usage
-The script requires two, three or four arguments depending on the function:
 
-- **API_KEY**: The API key used for authentication with the Terraform Cloud API.
-- **ORGANIZATION_NAME**: The name of the organization in Terraform Cloud.
-- **PROJECT_NAME**: The name of the project in Terraform Cloud.
-- **WORKSPACE_NAME**: The name of the workspace you want to attatch a projec to.
+## *bitbucket-pipelines.yml* example
 
-### Functions
-- `show_menu`: Displays the menu of available options.  
+    pipelines:
+    default:
+        - step:
+            name: pipeline-test-0.1.8
+            script:
+            - pipe: docker://igrzi1/create_tfc_workspace:0.1.8
+                variables:
+                TF_API_TOKEN: $TF_API_TOKEN
+                TF_ORG_NAME: $TF_ORG_NAME
+                TF_WORKSPACE_NAME: $TF_WORKSPACE_NAME
+                TF_PROJECT_NAME: $TF_PROJECT_NAME
+                TF_REMOTE_STATE_SHARE: $TF_REMOTE_STATE_SHARE
 
-- `list_workspaces`: Lists all workspaces for the given organization.  
 
-- `create_workspace`: Creates a new workspace for the given organization. 
+## Variables
 
-- `list_projects`: Lists all projects for the given organization.  
+### TF_API_TOKEN
+This is your ***Terraform Cloud API Token***, it can be the *Organization* API Token or the *User* API Token.
 
-- `create_project`: Creates a new project for the given organization.  
+### TF_ORG_NAME
+This is the name of your ***Terraform Cloud Organization***, be careful as this is case sensitive.
 
-- `attach_workspace_to_project`: Attaches a workspace to a project.
-  
-### Dependencies
-This script requires `curl` and `jq` to be installed on your system.
+### TF_WORKSPACE_NAME
+This is the name of the ***Terraform Cloud Workspace*** you either want to: Create, associate a project to or change the remote state.
 
-### Contributing
-Pull requests are welcome!
+### TF_PROJECT_NAME
+This is the name of the ***Terraform Cloud Project*** you want to associate to a already created workspace or a newly created one.
 
-### License  
-MIT
+### TF_REMOTE_STATE_SHARE
+This is **boolean** value that determines whether this workspace should share state with the entire organization, or only with specific approved workspaces.
+
+
+## Author Information
+
+### [GitHub](https://github.com/igrzi) profile
+### [LinkedIn](https://www.linkedin.com/in/igrzi) profile
